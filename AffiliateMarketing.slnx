@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="AffiliateMarketing.API/AffiliateMarketing.API.csproj" />
+  <Project Path="AffiliateMarketing.Application/AffiliateMarketing.Application.csproj" />
+  <Project Path="AffiliateMarketing.Contracts/AffiliateMarketing.Contracts.csproj" />
+  <Project Path="AffiliateMarketing.Domain/AffiliateMarketing.Domain.csproj" />
+  <Project Path="AffiliateMarketing.Infrastructure/AffiliateMarketing.Infrastructure.csproj" />
+  <Project Path="HashGenerator/HashGenerator.csproj" Id="d6d127e1-776e-4ecb-a619-69ef3053765f" />
+</Solution>
