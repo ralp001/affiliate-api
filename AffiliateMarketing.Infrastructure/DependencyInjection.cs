@@ -16,7 +16,7 @@ namespace AffiliateMarketing.Infrastructure
             IConfiguration configuration)
         {
             services.AddDbContext<AffiliateDbContext>(options =>
-            options.UseSqlServer(
+            options.UseNpgsql(
             configuration.GetConnectionString("AffiliateMarketingDb")));
 
             services.AddScoped<IUserRepository, UserRepository>();
