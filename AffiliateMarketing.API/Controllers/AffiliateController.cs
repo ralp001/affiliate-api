@@ -1,4 +1,5 @@
-﻿using AffiliateMarketing.Application.Products;
+﻿using AffiliateMarketing.Application.Abstractions;
+using AffiliateMarketing.Application.Products;
 using AffiliateMarketing.Application.Tracking;
 using AffiliateMarketing.Contracts.Affiliate;
 using Microsoft.AspNetCore.Mvc;
@@ -11,58 +12,38 @@ namespace AffiliateMarketing.API.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly ITrackingRepository _trackingRepository;
+        private readonly ILogService _logService; // New
 
         public AffiliateController(
             IProductRepository productRepository,
-            ITrackingRepository trackingRepository)
+            ITrackingRepository trackingRepository,
+            ILogService logService)
         {
             _productRepository = productRepository;
             _trackingRepository = trackingRepository;
-        }
-
-        [HttpGet("products")]
-        public async Task<IActionResult> GetProducts(
-            CancellationToken cancellationToken)
-        {
-            var products = await _productRepository
-                .GetAllAsync(cancellationToken);
-
-            return Ok(products.Select(p => new AffiliateProductResponse
-            {
-                ProductName = p.Name,
-                CommissionType = p.CommissionType,
-                CommissionValue = p.CommissionValue
-            }));
-        }
-
-        [HttpGet("resources")]
-        public IActionResult GetResources()
-        {
-            return Ok(new[]
-            {
-                new {
-                    name = "Product Banner",
-                    url = "https://cdn.example.com/banner.png"
-                }
-            });
+            _logService = logService;
         }
 
         [HttpGet("dashboard/metrics")]
-        public async Task<IActionResult> GetMetrics(
-    [FromQuery] string trackingId,
-    CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMetrics([FromQuery] string trackingId, CancellationToken cancellationToken)
         {
-            var clicks = await _trackingRepository
-                .GetClickCountAsync(trackingId, cancellationToken);
-
-            return Ok(new AffiliateMetricsResponse
+            try
             {
-                TotalClicks = clicks
-            });
+                var clicks = await _trackingRepository.GetClickCountAsync(trackingId, cancellationToken);
+                await _logService.LogAsync(null, "ViewMetrics", "Success", $"TrackingId: {trackingId}");
+
+                return Ok(new AffiliateMetricsResponse { TotalClicks = clicks });
+            }
+            catch (Exception ex)
+            {
+                await _logService.LogAsync(null, "ViewMetrics", "Error", ex.Message);
+                return StatusCode(500);
+            }
         }
     }
 }
 
 
-    
+
+
 

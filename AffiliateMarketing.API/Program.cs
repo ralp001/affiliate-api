@@ -14,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
+DotNetEnv.Env.Load();
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddValidatorsFromAssemblyContaining<AffiliateMarketing.Contracts.Identity.RegisterUserRequestValidator>();
 

@@ -1,7 +1,12 @@
-﻿using AffiliateMarketing.Application.Identity;
+﻿using Affiliate.Application.Abstractions;
+using Affiliate.Infrastructure.Messaging;
+using AffiliateMarketing.Application.Abstractions;
+using AffiliateMarketing.Application.Identity;
 using AffiliateMarketing.Application.Products;
 using AffiliateMarketing.Application.Tracking;
 using AffiliateMarketing.Infrastructure.Data;
+using AffiliateMarketing.Infrastructure.Logging;
+using AffiliateMarketing.Infrastructure.Messaging;
 using AffiliateMarketing.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +27,9 @@ namespace AffiliateMarketing.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ITrackingRepository, TrackingRepository>();
+            services.AddSingleton<IMessageProducer, KafkaProducerService>();
+            services.AddSingleton<ILogService, KafkaLogService>();
+            services.AddHostedService<IdentitySyncConsumer>();
 
             return services;
         }
