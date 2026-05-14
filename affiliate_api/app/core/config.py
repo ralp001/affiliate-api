@@ -40,5 +40,8 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ""
     REDIS_DB: int = 0
+    # Storage registry (data-residency-api integration)
+    DEPLOYMENT_REGION: str = "us"
+    PRODUCT: str = "idex"
 
 settings = Settings()

@@ -5,6 +5,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from typing import Dict, Any
 from app.api.routers import dashboard, links, tracking, admin, users, products, resources
+from app.routers.storage_registry import router as storage_registry_router
+from app.services.storage_registry_publisher import _publisher as storage_registry_publisher
 from app.core.config import settings
 from app.services.redis_service import redis_service
 from app.events.kafka_client import get_kafka_client
@@ -57,6 +59,12 @@ async def lifespan(app: FastAPI):
 
     await start_permission_consumer()
 
+    # ── Storage registry (data-residency-api) ────────────────────────────────
+    try:
+        await storage_registry_publisher.start()
+    except Exception as exc:
+        logger.warning("⚠️ Storage registry publisher failed to start: %s", exc)
+
     # ── Log queue + outbox worker ─────────────────────────────────────────────
     try:
         log_queue: asyncio.Queue = asyncio.Queue(maxsize=settings.LOG_OUTBOX_QUEUE_SIZE)
@@ -76,6 +84,7 @@ async def lifespan(app: FastAPI):
     # ── Shutdown ──────────────────────────────────────────────────────────────
     if hasattr(app.state, "log_worker"):
         await app.state.log_worker.stop()
+    await storage_registry_publisher.stop()
     await stop_permission_consumer()
     bus = get_message_bus()
     if bus:
@@ -97,6 +106,7 @@ app.include_router(tracking.router)
 app.include_router(admin.router)
 app.include_router(products.router)
 app.include_router(resources.router)
+app.include_router(storage_registry_router)
 
 
 @app.get("/affiliate/api/v1/debug/permissions", tags=["Debug"], include_in_schema=False)
