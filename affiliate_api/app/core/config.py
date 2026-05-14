@@ -17,11 +17,24 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "changeme"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     APP_BASE_URL: str = "https://abraham-emutare.duckdns.org/affiliate"
-    API_NAME: str = "affiliate-marketing-api"
-    API_KEY: str = ""
     # Multi-tenant JWT — one secret per issuer
     INTERNAL_AUTH_JWT_SECRET: str = ""
     EXTERNAL_AUTH_JWT_SECRET: str = ""
     JWT_ALGORITHM: str = "HS256"
+    # API identification
+    API_NAME: str = "affiliate-marketing-api"
+    API_KEY: str = ""
+    # API-Manager
+    API_MANAGER_URL: str = "http://34.70.122.249:8000"
+    # Kafka topics
+    KAFKA_USER_EVENTS_TOPIC: str = "user-events"
+    KAFKA_API_DATA_TYPES_TOPIC: str = "api-data-types"
+    KAFKA_PERMISSION_UPDATES_TOPIC: str = "permission-updates"
+    KAFKA_SECURITY_LOGS_TOPIC: str = "security-logs"
+    # Redis
+    REDIS_HOST: str = "34.70.122.249"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""
+    REDIS_DB: int = 0
 
 settings = Settings()

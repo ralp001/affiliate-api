@@ -7,11 +7,9 @@ import asyncio
 import json
 import logging
 
-from aiokafka import AIOKafkaConsumer
-from aiokafka.errors import KafkaConnectionError
-
 from app.core.config import settings
 from app.core.permissions import handle_permission_event
+from app.events.message_bus import get_message_bus
 
 logger = logging.getLogger(__name__)
 
@@ -20,35 +18,32 @@ _consumer_task: asyncio.Task | None = None
 
 async def _run_consumer():
     api_topic = f"{settings.API_NAME}-permissions"
-    global_topic = "permission-updates"
+    global_topic = settings.KAFKA_PERMISSION_UPDATES_TOPIC
 
     while True:
-        consumer = AIOKafkaConsumer(
-            api_topic,
-            global_topic,
-            bootstrap_servers=settings.KAFKA_BOOTSTRAP_SERVERS,
-            group_id=f"{settings.API_NAME}-permission-consumer",
-            auto_offset_reset="earliest",
-            value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-        )
         try:
-            await consumer.start()
-            logger.info(
-                "Permission consumer started — topics: [%s, %s]", api_topic, global_topic
+            bus = get_message_bus()
+            if not bus:
+                logger.warning("Permission consumer: MessageBus not ready — retrying in 15s")
+                await asyncio.sleep(15)
+                continue
+
+            consumer = await bus.create_consumer(
+                topics=[api_topic, global_topic],
+                group_id=f"{settings.API_NAME}-permission-consumer",
             )
+            await consumer.start()
+            logger.info("Permission consumer started — topics: [%s, %s]", api_topic, global_topic)
             async for message in consumer:
                 try:
                     await handle_permission_event(message.value)
                 except Exception as exc:
                     logger.error("Error handling permission event: %s", exc)
-        except KafkaConnectionError as exc:
-            logger.warning("Permission consumer: Kafka unavailable (%s) — retrying in 30s", exc)
-            await asyncio.sleep(30)
         except asyncio.CancelledError:
             logger.info("Permission consumer cancelled.")
             break
         except Exception as exc:
-            logger.error("Permission consumer unexpected error: %s — retrying in 30s", exc)
+            logger.error("Permission consumer error: %s — retrying in 30s", exc)
             await asyncio.sleep(30)
         finally:
             try:
