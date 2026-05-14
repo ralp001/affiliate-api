@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     KAFKA_API_DATA_TYPES_TOPIC: str = "api-data-types"
     KAFKA_PERMISSION_UPDATES_TOPIC: str = "permission-updates"
     KAFKA_SECURITY_LOGS_TOPIC: str = "security-logs"
+    KAFKA_USER_ACTION_LOGS_TOPIC: str = "user-action-logs"
+    # Logging system
+    LOG_OUTBOX_QUEUE_SIZE: int = 1000
+    LOG_MAX_RETRY_COUNT: int = 5
     # Redis
     REDIS_HOST: str = "34.70.122.249"
     REDIS_PORT: int = 6379

@@ -20,11 +20,13 @@ class MessageBus:
         username: str,
         password: str,
         service_id: str,
+        consumer_group_id: Optional[str] = None,
     ):
         self.bootstrap_servers = bootstrap_servers
         self.username = username
         self.password = password
         self.service_id = service_id
+        self.consumer_group_id = consumer_group_id or f"{service_id}-group"
         self.producer: Optional[AIOKafkaProducer] = None
         self._connected = False
         self._refresh_task: Optional[asyncio.Task] = None
@@ -112,7 +114,7 @@ class MessageBus:
     async def create_consumer(
         self, topics: List[str], group_id: Optional[str] = None
     ) -> AIOKafkaConsumer:
-        final_group_id = group_id or f"{self.service_id}-consumer"
+        final_group_id = group_id or self.consumer_group_id
         logger.info("📥 Creating consumer for %s (group: %s)", topics, final_group_id)
         return AIOKafkaConsumer(
             *topics,
@@ -180,12 +182,15 @@ async def initialize_message_bus(config: Dict[str, Any]) -> MessageBus:
     username = config.get("sasl_username") or config.get("username")
     password = config.get("sasl_password") or config.get("password")
     service_id = settings.API_NAME.lower().replace(" ", "-")
+    consumer_group_id = config.get("consumer_group_id") or f"{service_id}-group"
     _message_bus = MessageBus(
         bootstrap_servers=servers,
         username=username,
         password=password,
         service_id=service_id,
+        consumer_group_id=consumer_group_id,
     )
+    logger.info("📡 MessageBus consumer group: %s", consumer_group_id)
     await _message_bus.connect()
     return _message_bus
 

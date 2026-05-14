@@ -1,4 +1,5 @@
 # Source: AffiliateMarketing.API/Program.cs
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
@@ -9,10 +10,35 @@ from app.services.redis_service import redis_service
 from app.events.kafka_client import get_kafka_client
 from app.events.message_bus import initialize_message_bus, get_message_bus
 from app.events.permission_consumer import start_permission_consumer, stop_permission_consumer
+from app.services.log_queue import set_log_queue
+from app.services.log_outbox_worker import start_log_outbox_worker
 from app.core.permissions import permission_cache
 from app.core.security import require_support_admin
 
 logger = logging.getLogger(__name__)
+
+
+async def _emergency_recovery(queue: asyncio.Queue) -> None:
+    """Re-queue any unsynced logs left over from a previous crash."""
+    try:
+        from sqlalchemy import select
+        from app.core.db import AsyncSessionLocal
+        from app.models.log_model import UserActionLog
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(UserActionLog)
+                .where(UserActionLog.synced_to_kafka == False)  # noqa: E712
+                .where(UserActionLog.retry_count < settings.LOG_MAX_RETRY_COUNT)
+                .order_by(UserActionLog.timestamp)
+            )
+            unsynced = result.scalars().all()
+            if unsynced:
+                logger.info("🔄 Emergency recovery: queueing %d unsynced logs", len(unsynced))
+                for entry in unsynced:
+                    await queue.put(entry.id)
+    except Exception as exc:
+        logger.error("Emergency recovery failed: %s", exc)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,11 +56,26 @@ async def lifespan(app: FastAPI):
         logger.warning("⚠️ Kafka/Redis init failed (%s) — API starts without event bus", e)
 
     await start_permission_consumer()
+
+    # ── Log queue + outbox worker ─────────────────────────────────────────────
+    try:
+        log_queue: asyncio.Queue = asyncio.Queue(maxsize=settings.LOG_OUTBOX_QUEUE_SIZE)
+        set_log_queue(log_queue)
+        app.state.log_worker = await start_log_outbox_worker(
+            log_queue, max_retries=settings.LOG_MAX_RETRY_COUNT
+        )
+        await _emergency_recovery(log_queue)
+        logger.info("📋 Log queue and outbox worker ready")
+    except Exception as exc:
+        logger.error("Failed to start log outbox worker: %s", exc)
+
     logger.info("Starting Affiliate FastAPI...")
 
     yield
 
     # ── Shutdown ──────────────────────────────────────────────────────────────
+    if hasattr(app.state, "log_worker"):
+        await app.state.log_worker.stop()
     await stop_permission_consumer()
     bus = get_message_bus()
     if bus:

@@ -1,6 +1,6 @@
 # Source: AffiliateMarketing.API/Controllers/UserProvisioningController.cs
 import uuid
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
@@ -9,33 +9,36 @@ from app.core.security import create_access_token, require_support_admin
 from app.schemas.identity import RegisterUserRequest, LoginRequest, TokenResponse
 from app.models.user import User
 from app.models.affiliate_profile import AffiliateProfile
+from app.decorators.log_user_action import log_user_action
+from app.models.log_model import UserAction
 
 router = APIRouter(prefix="/affiliate/api/v1/users", tags=["01. User Provisioning"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.post("/register", status_code=201)
-async def register_user(request: RegisterUserRequest, db: AsyncSession = Depends(get_db)):
+@log_user_action(action=UserAction.SIGNUP)
+async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSession = Depends(get_db)):
     # Ensure unique username and email
     existing = (await db.execute(
-        select(User).where((User.username == request.username) | (User.email == request.email))
+        select(User).where((User.username == body.username) | (User.email == body.email))
     )).scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=409, detail="Username or email already registered")
 
     user = User(
         id=uuid.uuid4(),
-        username=request.username,
-        email=request.email,
-        password_hash=pwd_context.hash(request.password),
-        role=request.role,
-        home_country=request.home_country,
+        username=body.username,
+        email=body.email,
+        password_hash=pwd_context.hash(body.password),
+        role=body.role,
+        home_country=body.home_country,
     )
     db.add(user)
 
     affiliate_profile_id = None
-    if request.role == "Affiliate":
-        if not request.terms_accepted:
+    if body.role == "Affiliate":
+        if not body.terms_accepted:
             raise HTTPException(status_code=400, detail="Affiliates must accept terms and conditions")
         tracking_id = f"AFF-{str(uuid.uuid4())[:8].upper()}"
         profile = AffiliateProfile(
@@ -56,12 +59,13 @@ async def register_user(request: RegisterUserRequest, db: AsyncSession = Depends
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
+@log_user_action(action=UserAction.LOGIN)
+async def login(req: Request, body: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = (await db.execute(
-        select(User).where(User.username == request.username)
+        select(User).where(User.username == body.username)
     )).scalar_one_or_none()
 
-    if not user or not pwd_context.verify(request.password, user.password_hash):
+    if not user or not pwd_context.verify(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     affiliate_profile_id = None
