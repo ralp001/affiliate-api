@@ -1,43 +1,48 @@
 ﻿using AffiliateMarketing.Application.Tracking;
 using AffiliateMarketing.Domain.Entities;
 using AffiliateMarketing.Infrastructure.Data;
+using Affiliate.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
-namespace AffiliateMarketing.Infrastructure.Repositories
+namespace AffiliateMarketing.Infrastructure.Repositories;
+
+public sealed class TrackingRepository : ITrackingRepository
 {
-    public sealed class TrackingRepository : ITrackingRepository
+    private readonly AffiliateDbContext _db;
+    private readonly IMessageProducer _producer;
+
+    public TrackingRepository(AffiliateDbContext db, IMessageProducer producer)
     {
-        private readonly AffiliateDbContext _db;
+        _db = db;
+        _producer = producer;
+    }
 
-        public TrackingRepository(AffiliateDbContext db)
+    public async Task RegisterClickAsync(string trackingId, string userAgent, string ipAddress, CancellationToken ct)
+    {
+        var click = new ClickEvent
         {
-            _db = db;
-        }
+            Id = Guid.NewGuid(),
+            TrackingId = trackingId,
+            UserAgent = userAgent,
+            IpAddress = ipAddress,
+            ClickedAt = DateTime.UtcNow
+        };
 
-        public async Task RegisterClickAsync(
-            string trackingId,
-            string userAgent,
-            string ipAddress,
-            CancellationToken cancellationToken)
+        _db.ClickEvents.Add(click);
+        await _db.SaveChangesAsync(ct);
+
+        // Phase 7: Fan-out click data for Centralized Analytics
+        await _producer.PublishAsync("affiliate.clicks", new
         {
-            _db.ClickEvents.Add(new ClickEvent
-            {
-                Id = Guid.NewGuid(),
-                TrackingId = trackingId,
-                UserAgent = userAgent,
-                IpAddress = ipAddress,
-                ClickedAt = DateTime.UtcNow
-            });
+            click.TrackingId,
+            click.IpAddress,
+            click.ClickedAt,
+            ApiSource = "AffiliateMarketing_API"
+        });
+    }
 
-            await _db.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<int> GetClickCountAsync(
-            string trackingId,
-            CancellationToken cancellationToken)
-        {
-            return await _db.ClickEvents
-                .CountAsync(x => x.TrackingId == trackingId, cancellationToken);
-        }
+    public async Task<int> GetClickCountAsync(string trackingId, CancellationToken ct)
+    {
+        return await _db.ClickEvents.CountAsync(x => x.TrackingId == trackingId, ct);
     }
 }

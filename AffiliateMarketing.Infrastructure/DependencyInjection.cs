@@ -1,37 +1,58 @@
-﻿using Affiliate.Application.Abstractions;
-using Affiliate.Infrastructure.Messaging;
-using AffiliateMarketing.Application.Abstractions;
-using AffiliateMarketing.Application.Identity;
-using AffiliateMarketing.Application.Products;
-using AffiliateMarketing.Application.Tracking;
-using AffiliateMarketing.Infrastructure.Data;
-using AffiliateMarketing.Infrastructure.Logging;
-using AffiliateMarketing.Infrastructure.Messaging;
-using AffiliateMarketing.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
+﻿using AffiliateMarketing.Application.Common.Security;
+using AffiliateMarketing.Infrastructure.BackgroundServices;
+using AffiliateMarketing.Infrastructure.Security;
+using AffiliateMarketing.Infrastructure.Security.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Ticketing.Infrastructure.Security;
 
-namespace AffiliateMarketing.Infrastructure
+namespace AffiliateMarketing.Infrastructure;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddInfrastructure(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        var jwtOptions = new JwtOptions
         {
-            services.AddDbContext<AffiliateDbContext>(options =>
-            options.UseNpgsql(
-            configuration.GetConnectionString("AffiliateMarketingDb")));
+            InternalSecret = configuration["INTERNAL_AUTH_JWT_SECRET"]!,
+            ExternalSecret = configuration["EXTERNAL_AUTH_JWT_SECRET"]!,
+            Algorithm = configuration["JWT_ALGORITHM"] ?? "HS256"
+        };
 
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
-            services.AddScoped<ITrackingRepository, TrackingRepository>();
-            services.AddSingleton<IMessageProducer, KafkaProducerService>();
-            services.AddSingleton<ILogService, KafkaLogService>();
-            services.AddHostedService<IdentitySyncConsumer>();
+        services.AddSingleton(jwtOptions);
 
-            return services;
-        }
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Events = new MultiTenantJwtBearerEvents(jwtOptions);
+
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = false
+                };
+            });
+
+        services.AddAuthorization();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        services.AddSingleton<IPermissionCache, PermissionCache>();
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IUserProjectionService, UserProjectionService>();
+
+        services.AddHostedService<PermissionConsumer>();
+
+        return services;
     }
 }

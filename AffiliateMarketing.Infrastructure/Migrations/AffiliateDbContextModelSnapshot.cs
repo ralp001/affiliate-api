@@ -17,7 +17,7 @@ namespace AffiliateMarketing.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -30,6 +30,9 @@ namespace AffiliateMarketing.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("TrackingId")
                         .IsRequired()
@@ -48,10 +51,19 @@ namespace AffiliateMarketing.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            CreatedAt = new DateTime(2024, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc),
-                            TrackingId = "DEMO123",
+                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            TrackingId = "JIMMY_PROFILE",
                             UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            CreatedAt = new DateTime(2026, 1, 6, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            TrackingId = "AUSSIE_PROFILE",
+                            UserId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
                         });
                 });
 
@@ -61,11 +73,29 @@ namespace AffiliateMarketing.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("ClickedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("text");
+
                     b.Property<string>("IpAddress")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Platform")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Region")
                         .HasColumnType("text");
 
                     b.Property<string>("TrackingId")
@@ -73,30 +103,80 @@ namespace AffiliateMarketing.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("UserAgent")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CountryCode");
 
                     b.ToTable("ClickEvents");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
-                            ClickedAt = new DateTime(2024, 1, 1, 11, 50, 0, 0, DateTimeKind.Utc),
-                            IpAddress = "127.0.0.1",
-                            TrackingId = "DEMO123",
-                            UserAgent = "Mozilla/5.0"
+                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
+                            City = "Onitsha",
+                            ClickedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CountryCode = "NG",
+                            IpAddress = "102.89.1.1",
+                            Location = "Onitsha, NG",
+                            ProductId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            TrackingId = "JIMMY_DEMO"
                         },
                         new
                         {
-                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
-                            ClickedAt = new DateTime(2024, 1, 1, 11, 55, 0, 0, DateTimeKind.Utc),
-                            IpAddress = "127.0.0.1",
-                            TrackingId = "DEMO123",
-                            UserAgent = "Chrome"
+                            Id = new Guid("99999999-9999-9999-9999-999999999999"),
+                            City = "Sydney",
+                            ClickedAt = new DateTime(2026, 1, 7, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CountryCode = "AU",
+                            IpAddress = "1.1.1.1",
+                            Location = "Sydney, AU",
+                            ProductId = new Guid("44444444-4444-4444-4444-444444444444"),
+                            TrackingId = "AUSSIE_CODE"
                         });
+                });
+
+            modelBuilder.Entity("AffiliateMarketing.Domain.Entities.Conversion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AffiliateUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BuyerUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("CommissionEarned")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("CustomerCountry")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ReferralCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReferralSource")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("SaleAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerCountry");
+
+                    b.ToTable("Conversions");
                 });
 
             modelBuilder.Entity("AffiliateMarketing.Domain.Entities.Product", b =>
@@ -105,15 +185,37 @@ namespace AffiliateMarketing.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CommissionType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<decimal>("BasePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("CommissionType")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("CommissionValue")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAvailableForAffiliates")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProductType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubscriptionPlan")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -124,10 +226,83 @@ namespace AffiliateMarketing.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            CommissionType = "percentage",
-                            CommissionValue = 60m,
-                            Name = "Startup Plan"
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            BasePrice = 5000m,
+                            CommissionType = 1,
+                            CommissionValue = 10m,
+                            Currency = "NGN",
+                            Description = "Individual tracking",
+                            IsAvailableForAffiliates = true,
+                            Name = "Emutare Idex",
+                            ProductType = "Individual",
+                            SubscriptionPlan = "Gold"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            BasePrice = 25000m,
+                            CommissionType = 1,
+                            CommissionValue = 15m,
+                            Currency = "NGN",
+                            Description = "Enterprise management",
+                            IsAvailableForAffiliates = true,
+                            Name = "Nixus",
+                            ProductType = "Business",
+                            SubscriptionPlan = "Platinum"
+                        });
+                });
+
+            modelBuilder.Entity("AffiliateMarketing.Domain.Entities.ReferralLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AffiliateProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GeneratedCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourcePlatform")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AffiliateProfileId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ReferralLinks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
+                            AffiliateProfileId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            GeneratedCode = "JIMMY_DEMO",
+                            IsActive = true,
+                            ProductId = new Guid("33333333-3333-3333-3333-333333333333")
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
+                            AffiliateProfileId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            CreatedAt = new DateTime(2026, 1, 6, 0, 0, 0, 0, DateTimeKind.Utc),
+                            GeneratedCode = "AUSSIE_CODE",
+                            IsActive = true,
+                            ProductId = new Guid("44444444-4444-4444-4444-444444444444")
                         });
                 });
 
@@ -139,6 +314,13 @@ namespace AffiliateMarketing.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HomeCountry")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -163,11 +345,95 @@ namespace AffiliateMarketing.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            CreatedAt = new DateTime(2024, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc),
-                            PasswordHash = "$2a$11$BMPxjYU01aj1TVGEyqnHaejKA9aZyXnDCKl5ER4jb7h28goYYGczC",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            HomeCountry = "Nigeria",
+                            IsVerified = false,
+                            PasswordHash = "hash",
                             Role = "Affiliate",
-                            Username = "demo_affiliate"
+                            Username = "Jimmy_Affiliate"
+                        },
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            CreatedAt = new DateTime(2026, 1, 6, 0, 0, 0, 0, DateTimeKind.Utc),
+                            HomeCountry = "Australia",
+                            IsVerified = false,
+                            PasswordHash = "hash",
+                            Role = "Affiliate",
+                            Username = "Aussie_Partner"
                         });
+                });
+
+            modelBuilder.Entity("AffiliateMarketing.Infrastructure.Data.UserClearance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserClearances");
+                });
+
+            modelBuilder.Entity("AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OldValues")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PerformedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("AffiliateMarketing.Domain.Entities.ReferralLink", b =>
+                {
+                    b.HasOne("AffiliateMarketing.Domain.Entities.AffiliateProfile", "AffiliateProfile")
+                        .WithMany()
+                        .HasForeignKey("AffiliateProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AffiliateMarketing.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AffiliateProfile");
+
+                    b.Navigation("Product");
                 });
 #pragma warning restore 612, 618
         }

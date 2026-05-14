@@ -1,43 +1,76 @@
-﻿using Confluent.Kafka;
-using Newtonsoft.Json;
+﻿using Affiliate.Application.Abstractions;
+using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
-using Affiliate.Application.Abstractions;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace Affiliate.Infrastructure.Messaging;
+namespace AffiliateMarketing.Infrastructure.Messaging;
 
-public class KafkaProducerService : IMessageProducer
+public class KafkaProducer : IMessageProducer, IDisposable
 {
-    private readonly ProducerConfig _config;
+    private readonly IProducer<string, string> _producer;
+    private readonly ILogger<KafkaProducer> _logger;
+    private readonly JsonSerializerOptions _jsonOptions;
 
-    public KafkaProducerService(IConfiguration configuration)
+    public KafkaProducer(IConfiguration configuration, ILogger<KafkaProducer> logger)
     {
-        _config = new ProducerConfig
+        _logger = logger;
+
+        // MATCH PRODUCT PATTERN: Prioritize Environment Variables for the VM
+        var bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS")
+                               ?? configuration["KAFKA_BOOTSTRAP_SERVERS"]
+                               ?? "34.70.122.249:9092";
+
+        var config = new ProducerConfig
         {
-            // Now pulling Chibuikem's IP from the Environment Variable
-            BootstrapServers = configuration["KAFKA_BOOTSTRAP_SERVERS"] ?? "34.70.122.249:9092",
+            BootstrapServers = bootstrapServers,
             Acks = Acks.All,
-            SocketTimeoutMs = 5000
+            MessageTimeoutMs = 5000,
+            RequestTimeoutMs = 5000,
+            // Added to handle network flutters on the VM
+            SocketTimeoutMs = 60000,
+            RetryBackoffMs = 1000
         };
+
+        _producer = new ProducerBuilder<string, string>(config).Build();
+
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+            WriteIndented = false,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
+        _jsonOptions.Converters.Add(new JsonStringEnumConverter());
     }
 
     public async Task PublishAsync<T>(string topic, T @event) where T : class
     {
         try
         {
-            // Building producer with the dynamic config
-            using var producer = new ProducerBuilder<string, string>(_config).Build();
-            var value = JsonConvert.SerializeObject(@event);
+            var payload = JsonSerializer.Serialize(@event, _jsonOptions);
 
-            await producer.ProduceAsync(topic, new Message<string, string>
+            var result = await _producer.ProduceAsync(topic, new Message<string, string>
             {
-                Key = Guid.NewGuid().ToString(),
-                Value = value
+                Key = typeof(T).Name,
+                Value = payload
             });
+
+            _logger.LogInformation("✅ KAFKA SUCCESS (Affiliate): Delivered to {TopicPartitionOffset}", result.TopicPartitionOffset);
+        }
+        catch (ProduceException<string, string> ex)
+        {
+            _logger.LogError("🛑 KAFKA ERROR (Affiliate): {Reason}", ex.Error.Reason);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"KAFKA ERROR: {ex.Message}");
-            throw;
+            _logger.LogError("🛑 UNEXPECTED ERROR (Affiliate): {Message}", ex.Message);
         }
+    }
+
+    public void Dispose()
+    {
+        _producer?.Flush(TimeSpan.FromSeconds(10));
+        _producer?.Dispose();
     }
 }

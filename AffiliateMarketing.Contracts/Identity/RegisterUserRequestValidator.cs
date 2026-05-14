@@ -22,3 +22,4 @@ namespace AffiliateMarketing.Contracts.Identity
         }
     }
 }
+

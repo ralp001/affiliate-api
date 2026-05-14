@@ -6,7 +6,8 @@
     public Guid UserId { get; set; }
     public required string TrackingId { get; set; }
     public DateTime CreatedAt { get; set; }
-}
+    public bool IsActive { get; set; } = true;
+    }
 }
 
 
