@@ -49,26 +49,32 @@ def upgrade() -> None:
         "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'logs')"
     ))
     if not result.scalar():
+        useraction_type = postgresql.ENUM(
+            'Login', 'Logout', 'Signup', 'Profile View', 'Profile Update',
+            'Referral Link Create', 'Referral Link View', 'Click Track',
+            'Conversion Record', 'Resource View', 'Resource Upload', 'Admin Action',
+            name='useraction', create_type=False,
+        )
+        actionstatus_type = postgresql.ENUM(
+            'Success', 'Failed',
+            name='actionstatus', create_type=False,
+        )
+        logfailurereason_type = postgresql.ENUM(
+            'Invalid Credentials', 'Account Locked', 'Email Not Verified', 'Invalid OTP',
+            'OTP Expired', 'Weak Password', 'Password Mismatch', 'Email Already Exists',
+            'Invalid Input', 'Rate Limit Exceeded', 'Network Error', 'Database Error',
+            'Kafka Error', 'Token Expired', 'Insufficient Permissions',
+            name='logfailurereason', create_type=False,
+        )
         op.create_table(
             'logs',
             sa.Column('id', postgresql.UUID(as_uuid=True), nullable=False),
             sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=True),
             sa.Column('email', sa.String(320), nullable=True),
             sa.Column('responsibility_category', sa.String(50), nullable=True),
-            sa.Column('action', sa.Enum(
-                'Login','Logout','Signup','Profile View','Profile Update',
-                'Referral Link Create','Referral Link View','Click Track',
-                'Conversion Record','Resource View','Resource Upload','Admin Action',
-                name='useraction', create_type=False,
-            ), nullable=False),
-            sa.Column('status', sa.Enum('Success', 'Failed', name='actionstatus', create_type=False), nullable=False),
-            sa.Column('failure_reason', sa.Enum(
-                'Invalid Credentials','Account Locked','Email Not Verified','Invalid OTP',
-                'OTP Expired','Weak Password','Password Mismatch','Email Already Exists',
-                'Invalid Input','Rate Limit Exceeded','Network Error','Database Error',
-                'Kafka Error','Token Expired','Insufficient Permissions',
-                name='logfailurereason', create_type=False,
-            ), nullable=True),
+            sa.Column('action', useraction_type, nullable=False),
+            sa.Column('status', actionstatus_type, nullable=False),
+            sa.Column('failure_reason', logfailurereason_type, nullable=True),
             sa.Column('ip_address', sa.String(45), nullable=True),
             sa.Column('location', sa.String(100), nullable=True),
             sa.Column('timestamp', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
