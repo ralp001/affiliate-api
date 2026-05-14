@@ -166,9 +166,17 @@ _message_bus: Optional[MessageBus] = None
 
 async def initialize_message_bus(config: Dict[str, Any]) -> MessageBus:
     global _message_bus
-    servers = config.get("bootstrap_servers", [])
-    if isinstance(servers, str):
-        servers = [servers]
+    # Prefer the externally-reachable bootstrap servers from .env; the API-Manager
+    # may return an internal address (e.g. localhost:29092) that only works on its
+    # own host.  settings.KAFKA_BOOTSTRAP_SERVERS always points to the correct
+    # external host for this deployment.
+    env_servers = settings.KAFKA_BOOTSTRAP_SERVERS
+    if env_servers:
+        servers = [s.strip() for s in env_servers.split(",")]
+    else:
+        servers = config.get("bootstrap_servers", [])
+        if isinstance(servers, str):
+            servers = [servers]
     username = config.get("sasl_username") or config.get("username")
     password = config.get("sasl_password") or config.get("password")
     service_id = settings.API_NAME.lower().replace(" ", "-")
