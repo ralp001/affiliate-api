@@ -72,14 +72,14 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
         if profile:
             affiliate_profile_id = str(profile.id)
 
+    # Issue token with correct issuer so multi-tenant auth can validate it
+    issuer = "internal-auth-api" if user.role == "SupportAdmin" else "external-auth-api"
     token = create_access_token({
         "sub": str(user.id),
-        "username": user.username,
         "email": user.email,
-        "role": user.role,
+        "responsibility_category": user.role.lower(),
         "home_country": user.home_country,
-        "affiliate_profile_id": affiliate_profile_id,
-    })
+    }, issuer=issuer)
     return TokenResponse(
         access_token=token,
         role=user.role,

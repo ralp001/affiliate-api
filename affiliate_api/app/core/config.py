@@ -13,10 +13,15 @@ class Settings(BaseSettings):
     KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
     KAFKA_AUDIT_LOGS_TOPIC: str = "affiliate-logs"
     IPINFO_TOKEN: str = "aa55f34e25388c"
+    # Legacy single-secret (kept for local dev tooling only — not used for auth)
     JWT_SECRET_KEY: str = "changeme"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     APP_BASE_URL: str = "https://abraham-emutare.duckdns.org/affiliate"
     API_NAME: str = "affiliate-marketing-api"
     API_KEY: str = ""
+    # Multi-tenant JWT — one secret per issuer
+    INTERNAL_AUTH_JWT_SECRET: str = ""
+    EXTERNAL_AUTH_JWT_SECRET: str = ""
+    JWT_ALGORITHM: str = "HS256"
 
 settings = Settings()
