@@ -16,5 +16,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "changeme"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     APP_BASE_URL: str = "https://abraham-emutare.duckdns.org/affiliate"
+    API_NAME: str = "affiliate-marketing-api"
+    API_KEY: str = ""
 
 settings = Settings()
