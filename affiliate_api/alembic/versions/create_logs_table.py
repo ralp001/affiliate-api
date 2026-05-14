@@ -1,7 +1,7 @@
 """create logs table
 
 Revision ID: a1b2c3d4e5f6
-Revises: None
+Revises: 3594fe773255
 Create Date: 2026-05-14
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision: str = 'a1b2c3d4e5f6'
-down_revision: Union[str, None] = None
+down_revision: Union[str, None] = '3594fe773255'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
