@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "Anmeldedaten konnten nicht überprüft werden",
+    "not_authenticated": "Nicht authentifiziert",
+    "insufficient_permissions": "Unzureichende Berechtigungen",
+    "token_invalidated": "Das Token wurde aufgrund eines aktuellen Sicherheitsereignisses ungültig gemacht",
+    "account_deactivated": "Das Konto wurde deaktiviert. Kontaktieren Sie Ihren Administrator.",
+    "account_locked": "Das Konto ist gesperrt. Kontaktieren Sie Ihren Administrator.",
+    "session_expired": "Sitzung abgelaufen oder widerrufen. Bitte erneut anmelden.",
+    "invalid_credentials": "Ungültiger Benutzername oder ungültiges Passwort",
+    "login_successful": "Anmeldung erfolgreich",
+    "logout_successful": "Abmeldung erfolgreich"
+  },
+  "user": {
+    "not_found": "Benutzer nicht gefunden",
+    "no_valid_fields_to_update": "Keine gültigen Felder zum Aktualisieren",
+    "profile_updated": "Profil erfolgreich aktualisiert",
+    "language_updated": "Bevorzugte Sprache aktualisiert",
+    "language_cleared": "Spracheinstellung zurückgesetzt",
+    "language_unsupported": "Nicht unterstützter Sprachcode"
+  },
+  "registration": {
+    "email_already_registered": "Ein Konto mit dieser E-Mail-Adresse existiert bereits",
+    "username_or_email_taken": "Benutzername oder E-Mail-Adresse bereits registriert",
+    "terms_required": "Affiliates müssen die Allgemeinen Geschäftsbedingungen akzeptieren",
+    "signup_successful": "Benutzer erfolgreich registriert",
+    "verification_sent": "Ein Verifizierungscode wurde an Ihre E-Mail-Adresse gesendet",
+    "verification_invalid": "Ungültiger oder abgelaufener Verifizierungscode",
+    "email_verified": "E-Mail-Adresse erfolgreich verifiziert"
+  },
+  "validation": {
+    "email_required": "E-Mail-Parameter ist erforderlich"
+  }
+}

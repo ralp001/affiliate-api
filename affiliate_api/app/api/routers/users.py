@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.affiliate_profile import AffiliateProfile
 from app.decorators.log_user_action import log_user_action
 from app.models.log_model import UserAction
+from app.i18n import t, DEFAULT_LANGUAGE
 
 router = APIRouter(prefix="/affiliate/api/v1/users", tags=["01. User Provisioning"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -19,12 +20,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 @router.post("/register", status_code=201)
 @log_user_action(action=UserAction.SIGNUP)
 async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSession = Depends(get_db)):
+    lang = getattr(req.state, "language", DEFAULT_LANGUAGE)
     # Ensure unique username and email
     existing = (await db.execute(
         select(User).where((User.username == body.username) | (User.email == body.email))
     )).scalar_one_or_none()
     if existing:
-        raise HTTPException(status_code=409, detail="Username or email already registered")
+        raise HTTPException(status_code=409, detail=t("registration.username_or_email_taken", lang))
 
     user = User(
         id=uuid.uuid4(),
@@ -39,7 +41,7 @@ async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSessio
     affiliate_profile_id = None
     if body.role == "Affiliate":
         if not body.terms_accepted:
-            raise HTTPException(status_code=400, detail="Affiliates must accept terms and conditions")
+            raise HTTPException(status_code=400, detail=t("registration.terms_required", lang))
         tracking_id = f"AFF-{str(uuid.uuid4())[:8].upper()}"
         profile = AffiliateProfile(
             id=uuid.uuid4(),
@@ -52,7 +54,7 @@ async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSessio
 
     await db.commit()
     return {
-        "message": "User registered successfully",
+        "message": t("registration.signup_successful", lang),
         "user_id": str(user.id),
         "affiliate_profile_id": affiliate_profile_id,
     }
@@ -61,12 +63,13 @@ async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSessio
 @router.post("/login", response_model=TokenResponse)
 @log_user_action(action=UserAction.LOGIN)
 async def login(req: Request, body: LoginRequest, db: AsyncSession = Depends(get_db)):
+    lang = getattr(req.state, "language", DEFAULT_LANGUAGE)
     user = (await db.execute(
         select(User).where(User.username == body.username)
     )).scalar_one_or_none()
 
     if not user or not pwd_context.verify(body.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail=t("auth.invalid_credentials", lang))
 
     affiliate_profile_id = None
     if user.role == "Affiliate":

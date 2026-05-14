@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "无法验证凭据",
+    "not_authenticated": "未经身份验证",
+    "insufficient_permissions": "权限不足",
+    "token_invalidated": "令牌已因最近的安全事件而失效",
+    "account_deactivated": "账户已被停用。请联系您的管理员。",
+    "account_locked": "账户已被锁定。请联系您的管理员。",
+    "session_expired": "会话已过期或被撤销。请重新登录。",
+    "invalid_credentials": "用户名或密码无效",
+    "login_successful": "登录成功",
+    "logout_successful": "退出登录成功"
+  },
+  "user": {
+    "not_found": "用户未找到",
+    "no_valid_fields_to_update": "没有可更新的有效字段",
+    "profile_updated": "个人资料已成功更新",
+    "language_updated": "首选语言已更新",
+    "language_cleared": "语言偏好已清除",
+    "language_unsupported": "不支持的语言代码"
+  },
+  "registration": {
+    "email_already_registered": "该电子邮件已注册账户",
+    "username_or_email_taken": "用户名或电子邮件已注册",
+    "terms_required": "附属机构必须接受条款和条件",
+    "signup_successful": "用户注册成功",
+    "verification_sent": "验证码已发送至您的电子邮件",
+    "verification_invalid": "验证码无效或已过期",
+    "email_verified": "电子邮件验证成功"
+  },
+  "validation": {
+    "email_required": "需要提供电子邮件参数"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "Impossibile convalidare le credenziali",
+    "not_authenticated": "Non autenticato",
+    "insufficient_permissions": "Autorizzazioni insufficienti",
+    "token_invalidated": "Il token è stato invalidato a causa di un recente evento di sicurezza",
+    "account_deactivated": "L'account è stato disattivato. Contatta il tuo amministratore.",
+    "account_locked": "L'account è bloccato. Contatta il tuo amministratore.",
+    "session_expired": "La sessione è scaduta o revocata. Effettua nuovamente il login.",
+    "invalid_credentials": "Nome utente o password non validi",
+    "login_successful": "Accesso effettuato con successo",
+    "logout_successful": "Disconnessione avvenuta con successo"
+  },
+  "user": {
+    "not_found": "Utente non trovato",
+    "no_valid_fields_to_update": "Nessun campo valido da aggiornare",
+    "profile_updated": "Profilo aggiornato con successo",
+    "language_updated": "Lingua preferita aggiornata",
+    "language_cleared": "Preferenza lingua rimossa",
+    "language_unsupported": "Codice lingua non supportato"
+  },
+  "registration": {
+    "email_already_registered": "Esiste già un account con questa email",
+    "username_or_email_taken": "Nome utente o email già registrati",
+    "terms_required": "Gli affiliati devono accettare i termini e le condizioni",
+    "signup_successful": "Utente registrato con successo",
+    "verification_sent": "Un codice di verifica è stato inviato alla tua email",
+    "verification_invalid": "Codice di verifica non valido o scaduto",
+    "email_verified": "Email verificata con successo"
+  },
+  "validation": {
+    "email_required": "Il parametro email è obbligatorio"
+  }
+}

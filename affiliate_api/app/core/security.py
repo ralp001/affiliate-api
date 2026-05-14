@@ -1,6 +1,6 @@
 import uuid
 from typing import Dict, Any
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,6 +8,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timezone, timedelta
 from app.core.config import settings
 from app.core.db import get_db
+from app.i18n import t, is_supported, normalize, DEFAULT_LANGUAGE
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -27,6 +28,7 @@ def create_access_token(data: dict, issuer: str = "external-auth-api") -> str:
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> Dict[str, Any]:
@@ -34,12 +36,14 @@ async def get_current_user(
     Multi-tenant JWT authentication.
     Accepts tokens from both internal-auth-api (staff) and external-auth-api (affiliates).
     """
+    lang = getattr(request.state, "language", DEFAULT_LANGUAGE)
+
     if credentials is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=t("auth.not_authenticated", lang))
 
     cred_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail=t("auth.could_not_validate_credentials", lang),
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -70,7 +74,14 @@ async def get_current_user(
     if not user_id:
         raise cred_exc
 
-    # Step 4: build user context based on issuer
+    # Step 4: refine language from JWT preferred_language claim (skip if explicit override)
+    if not request.headers.get("X-Language") and not request.query_params.get("lang"):
+        jwt_lang = payload.get("preferred_language", "")
+        if jwt_lang and is_supported(jwt_lang):
+            request.state.language = normalize(jwt_lang)
+            lang = request.state.language
+
+    # Step 5: build user context based on issuer
     if issuer == "internal-auth-api":
         return {
             "id": user_id,
@@ -104,9 +115,10 @@ async def get_current_user(
 
 def require_role(*roles: str):
     """Returns a FastAPI dependency that enforces one of the given roles."""
-    async def _checker(user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+    async def _checker(request: Request, user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
         if user.get("role") not in roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+            lang = getattr(request.state, "language", DEFAULT_LANGUAGE)
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=t("auth.insufficient_permissions", lang))
         return user
     return _checker
 

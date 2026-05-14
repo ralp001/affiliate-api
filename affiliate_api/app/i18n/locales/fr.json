@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "Impossible de valider les identifiants",
+    "not_authenticated": "Non authentifié",
+    "insufficient_permissions": "Permissions insuffisantes",
+    "token_invalidated": "Le jeton a été invalidé suite à un événement de sécurité récent",
+    "account_deactivated": "Le compte a été désactivé. Contactez votre administrateur.",
+    "account_locked": "Le compte est verrouillé. Contactez votre administrateur.",
+    "session_expired": "Session expirée ou révoquée. Veuillez vous reconnecter.",
+    "invalid_credentials": "Nom d'utilisateur ou mot de passe invalide",
+    "login_successful": "Connexion réussie",
+    "logout_successful": "Déconnexion réussie"
+  },
+  "user": {
+    "not_found": "Utilisateur introuvable",
+    "no_valid_fields_to_update": "Aucun champ valide à mettre à jour",
+    "profile_updated": "Profil mis à jour avec succès",
+    "language_updated": "Langue préférée mise à jour",
+    "language_cleared": "Préférence linguistique effacée",
+    "language_unsupported": "Code de langue non pris en charge"
+  },
+  "registration": {
+    "email_already_registered": "Un compte avec cet e-mail existe déjà",
+    "username_or_email_taken": "Nom d'utilisateur ou e-mail déjà enregistré",
+    "terms_required": "Les affiliés doivent accepter les conditions générales",
+    "signup_successful": "Utilisateur enregistré avec succès",
+    "verification_sent": "Un code de vérification a été envoyé à votre e-mail",
+    "verification_invalid": "Code de vérification invalide ou expiré",
+    "email_verified": "E-mail vérifié avec succès"
+  },
+  "validation": {
+    "email_required": "Le paramètre e-mail est requis"
+  }
+}

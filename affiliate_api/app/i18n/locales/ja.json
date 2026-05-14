@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "認証情報を検証できませんでした",
+    "not_authenticated": "認証されていません",
+    "insufficient_permissions": "権限が不足しています",
+    "token_invalidated": "最近のセキュリティイベントによりトークンが無効化されました",
+    "account_deactivated": "アカウントが無効化されています。管理者にお問い合わせください。",
+    "account_locked": "アカウントがロックされています。管理者にお問い合わせください。",
+    "session_expired": "セッションが期限切れまたは取り消されました。再ログインしてください。",
+    "invalid_credentials": "ユーザー名またはパスワードが正しくありません",
+    "login_successful": "ログインに成功しました",
+    "logout_successful": "ログアウトに成功しました"
+  },
+  "user": {
+    "not_found": "ユーザーが見つかりません",
+    "no_valid_fields_to_update": "更新する有効なフィールドがありません",
+    "profile_updated": "プロフィールが正常に更新されました",
+    "language_updated": "優先言語が更新されました",
+    "language_cleared": "言語設定がクリアされました",
+    "language_unsupported": "サポートされていない言語コードです"
+  },
+  "registration": {
+    "email_already_registered": "このメールアドレスのアカウントは既に存在します",
+    "username_or_email_taken": "ユーザー名またはメールアドレスは既に登録されています",
+    "terms_required": "アフィリエイトは利用規約に同意する必要があります",
+    "signup_successful": "ユーザーが正常に登録されました",
+    "verification_sent": "確認コードがメールアドレスに送信されました",
+    "verification_invalid": "確認コードが無効または期限切れです",
+    "email_verified": "メールアドレスが正常に確認されました"
+  },
+  "validation": {
+    "email_required": "メールアドレスパラメータが必要です"
+  }
+}

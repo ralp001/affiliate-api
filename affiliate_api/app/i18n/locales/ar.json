@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "تعذّر التحقق من بيانات الاعتماد",
+    "not_authenticated": "غير مصادق عليه",
+    "insufficient_permissions": "صلاحيات غير كافية",
+    "token_invalidated": "تم إبطال الرمز المميز بسبب حدث أمني حديث",
+    "account_deactivated": "تم تعطيل الحساب. تواصل مع المسؤول.",
+    "account_locked": "الحساب مقفل. تواصل مع المسؤول.",
+    "session_expired": "انتهت صلاحية الجلسة أو تم إلغاؤها. يرجى تسجيل الدخول مجدداً.",
+    "invalid_credentials": "اسم المستخدم أو كلمة المرور غير صحيحة",
+    "login_successful": "تم تسجيل الدخول بنجاح",
+    "logout_successful": "تم تسجيل الخروج بنجاح"
+  },
+  "user": {
+    "not_found": "المستخدم غير موجود",
+    "no_valid_fields_to_update": "لا توجد حقول صالحة للتحديث",
+    "profile_updated": "تم تحديث الملف الشخصي بنجاح",
+    "language_updated": "تم تحديث اللغة المفضلة",
+    "language_cleared": "تم مسح تفضيل اللغة",
+    "language_unsupported": "رمز لغة غير مدعوم"
+  },
+  "registration": {
+    "email_already_registered": "يوجد حساب مسجل بهذا البريد الإلكتروني",
+    "username_or_email_taken": "اسم المستخدم أو البريد الإلكتروني مسجّل بالفعل",
+    "terms_required": "يجب على المنتسبين قبول الشروط والأحكام",
+    "signup_successful": "تم تسجيل المستخدم بنجاح",
+    "verification_sent": "تم إرسال رمز التحقق إلى بريدك الإلكتروني",
+    "verification_invalid": "رمز التحقق غير صالح أو منتهي الصلاحية",
+    "email_verified": "تم التحقق من البريد الإلكتروني بنجاح"
+  },
+  "validation": {
+    "email_required": "معامل البريد الإلكتروني مطلوب"
+  }
+}

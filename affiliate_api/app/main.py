@@ -16,6 +16,7 @@ from app.services.log_queue import set_log_queue
 from app.services.log_outbox_worker import start_log_outbox_worker
 from app.core.permissions import permission_cache
 from app.core.security import require_support_admin
+from app.i18n import LanguageMiddleware, preload_all, supported_codes
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.error("Failed to start log outbox worker: %s", exc)
 
+    preload_all()
     logger.info("Starting Affiliate FastAPI...")
 
     yield
@@ -107,6 +109,42 @@ app.include_router(admin.router)
 app.include_router(products.router)
 app.include_router(resources.router)
 app.include_router(storage_registry_router)
+
+app.add_middleware(LanguageMiddleware)
+
+
+from fastapi.openapi.utils import get_openapi
+
+
+def _custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    schema = get_openapi(
+        title="Emutare Affiliate API",
+        version="1.0",
+        routes=app.routes,
+    )
+    lang_param = {
+        "name": "lang",
+        "in": "query",
+        "required": False,
+        "description": "Override response language. Supported: " + ", ".join(supported_codes()),
+        "schema": {"type": "string", "enum": supported_codes()},
+    }
+    for path_item in schema.get("paths", {}).values():
+        for operation in path_item.values():
+            if isinstance(operation, dict):
+                operation.setdefault("parameters", [])
+                if not any(
+                    p.get("name") == "lang" and p.get("in") == "query"
+                    for p in operation["parameters"]
+                ):
+                    operation["parameters"].append(lang_param)
+    app.openapi_schema = schema
+    return schema
+
+
+app.openapi = _custom_openapi
 
 
 @app.get("/affiliate/api/v1/debug/permissions", tags=["Debug"], include_in_schema=False)

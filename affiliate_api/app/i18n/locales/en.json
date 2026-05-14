@@ -1,0 +1,43 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "Could not validate credentials",
+    "not_authenticated": "Not authenticated",
+    "insufficient_permissions": "Insufficient permissions",
+    "token_invalidated": "Token has been invalidated by a recent security event",
+    "account_deactivated": "Account has been deactivated. Contact your administrator.",
+    "account_locked": "Account is locked. Contact your administrator.",
+    "session_expired": "Session expired or revoked. Please login again.",
+    "invalid_credentials": "Invalid username or password",
+    "login_successful": "Login successful",
+    "logout_successful": "Logout successful"
+  },
+  "user": {
+    "not_found": "User not found",
+    "no_valid_fields_to_update": "No valid fields to update",
+    "profile_updated": "Profile updated successfully",
+    "language_updated": "Preferred language updated",
+    "language_cleared": "Preferred language cleared",
+    "language_unsupported": "Unsupported language code"
+  },
+  "registration": {
+    "email_already_registered": "An account with this email already exists",
+    "username_or_email_taken": "Username or email already registered",
+    "terms_required": "Affiliates must accept terms and conditions",
+    "signup_successful": "User registered successfully",
+    "verification_sent": "A verification code has been sent to your email",
+    "verification_invalid": "Invalid or expired verification code",
+    "email_verified": "Email verified successfully"
+  },
+  "validation": {
+    "email_required": "Email parameter is required"
+  },
+  "affiliate": {
+    "profile_not_found": "Affiliate profile not found",
+    "link_not_found": "Referral link not found",
+    "link_already_exists": "A referral link with this slug already exists",
+    "conversion_not_found": "Conversion record not found",
+    "resource_not_found": "Resource not found",
+    "product_not_found": "Product not found",
+    "access_denied": "You do not have access to this resource"
+  }
+}

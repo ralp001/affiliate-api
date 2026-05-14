@@ -1,0 +1,34 @@
+{
+  "auth": {
+    "could_not_validate_credentials": "Não foi possível validar as credenciais",
+    "not_authenticated": "Não autenticado",
+    "insufficient_permissions": "Permissões insuficientes",
+    "token_invalidated": "O token foi invalidado por um evento de segurança recente",
+    "account_deactivated": "A conta foi desativada. Entre em contato com o administrador.",
+    "account_locked": "A conta está bloqueada. Entre em contato com o administrador.",
+    "session_expired": "Sessão expirada ou revogada. Por favor, faça login novamente.",
+    "invalid_credentials": "Nome de usuário ou senha inválidos",
+    "login_successful": "Login realizado com sucesso",
+    "logout_successful": "Logout realizado com sucesso"
+  },
+  "user": {
+    "not_found": "Usuário não encontrado",
+    "no_valid_fields_to_update": "Nenhum campo válido para atualizar",
+    "profile_updated": "Perfil atualizado com sucesso",
+    "language_updated": "Idioma preferido atualizado",
+    "language_cleared": "Preferência de idioma removida",
+    "language_unsupported": "Código de idioma não suportado"
+  },
+  "registration": {
+    "email_already_registered": "Já existe uma conta com este email",
+    "username_or_email_taken": "Nome de usuário ou email já registrado",
+    "terms_required": "Os afiliados devem aceitar os termos e condições",
+    "signup_successful": "Usuário registrado com sucesso",
+    "verification_sent": "Um código de verificação foi enviado para o seu email",
+    "verification_invalid": "Código de verificação inválido ou expirado",
+    "email_verified": "Email verificado com sucesso"
+  },
+  "validation": {
+    "email_required": "O parâmetro de email é obrigatório"
+  }
+}
