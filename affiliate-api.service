@@ -1,0 +1,17 @@
+[Unit]
+Description=Affiliate Marketing API (FastAPI)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=abraham
+WorkingDirectory=/home/abraham/apps/affiliate-api/affiliate_api
+EnvironmentFile=/home/abraham/apps/affiliate-api/affiliate_api/.env
+ExecStart=/usr/bin/python3 -m uvicorn app.main:app --host 127.0.0.1 --port 5003
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
