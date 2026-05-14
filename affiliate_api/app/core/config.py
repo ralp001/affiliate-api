@@ -9,5 +9,7 @@ class Settings(BaseSettings):
     KAFKA_AUDIT_LOGS_TOPIC: str = "affiliate-logs"
     IPINFO_TOKEN: str = ""
     JWT_SECRET_KEY: str = "changeme"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    APP_BASE_URL: str = "http://localhost:8000"
 
 settings = Settings()

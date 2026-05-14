@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^dotnet run --project \\.\\\\AffiliateMarketing\\.API\\\\AffiliateMarketing\\.API\\.csproj$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

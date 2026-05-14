@@ -1,7 +1,7 @@
 # Source: AffiliateMarketing.API/Program.cs
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.api.routers import dashboard, links, tracking, admin, users
+from app.api.routers import dashboard, links, tracking, admin, users, products, resources
 from app.infrastructure.kafka import producer as kafka_producer
 
 @asynccontextmanager
@@ -25,3 +25,5 @@ app.include_router(dashboard.router)
 app.include_router(links.router)
 app.include_router(tracking.router)
 app.include_router(admin.router)
+app.include_router(products.router)
+app.include_router(resources.router)
