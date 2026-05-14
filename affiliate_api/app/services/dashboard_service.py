@@ -65,12 +65,15 @@ async def get_summary(db: AsyncSession) -> DashboardSummaryResponse:
 
     top_affiliates_by_sales = []
     for row in top_sales_rows:
-        user = (await db.execute(select(User).where(User.id == row.affiliate_user_id))).scalar_one_or_none()
-        if user:
-            top_affiliates_by_sales.append(AffiliatePerformanceSchema(
-                username=user.username, home_country=user.home_country,
-                created_at=user.created_at, count=row.sales, revenue=float(row.rev or 0)
-            ))
+        # affiliate_user_id stores AffiliateProfile.id — resolve through profile to get User
+        profile = await db.get(AffiliateProfile, row.affiliate_user_id)
+        if profile:
+            user = (await db.execute(select(User).where(User.id == profile.user_id))).scalar_one_or_none()
+            if user:
+                top_affiliates_by_sales.append(AffiliatePerformanceSchema(
+                    username=user.username, home_country=user.home_country,
+                    created_at=user.created_at, count=row.sales, revenue=float(row.rev or 0)
+                ))
 
     # 7. Top 5 affiliates by click links
     top_link_rows = (await db.execute(

@@ -15,4 +15,8 @@ class KafkaLogService:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "environment": "Production_VM",
         }
-        await producer.publish(settings.KAFKA_AUDIT_LOGS_TOPIC, entry)
+        try:
+            await producer.publish(settings.KAFKA_AUDIT_LOGS_TOPIC, entry)
+        except Exception:
+            # Kafka unavailable — log is silently dropped so the API stays up
+            pass

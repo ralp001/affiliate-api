@@ -1,7 +1,12 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # Resolve .env relative to this file so it is found regardless of working directory
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).parent.parent.parent / ".env",
+        extra="ignore",
+    )
 
     DATABASE_URL: str = "postgresql+asyncpg://postgres:cyberrole_2026@localhost:5432/affiliate_db"
     REDIS_URL: str = "redis://localhost:6379"
