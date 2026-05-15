@@ -9,7 +9,7 @@ from app.schemas.dashboard import DashboardSummaryResponse, MyDashboardResponse
 from app.schemas.affiliate import SimulateSaleRequest
 from app.infrastructure.kafka.log_service import KafkaLogService
 
-router = APIRouter(prefix="/affiliate/api/v1/dashboard", tags=["02. Affiliate Performance Dashboard"])
+router = APIRouter(prefix="/api/v1/dashboard", tags=["02. Affiliate Performance Dashboard"])
 log_service = KafkaLogService()
 
 

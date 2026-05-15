@@ -13,7 +13,7 @@ from app.decorators.log_user_action import log_user_action
 from app.models.log_model import UserAction
 from app.i18n import t, DEFAULT_LANGUAGE
 
-router = APIRouter(prefix="/affiliate/api/v1/users", tags=["01. User Provisioning"])
+router = APIRouter(prefix="/api/v1/users", tags=["01. User Provisioning"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

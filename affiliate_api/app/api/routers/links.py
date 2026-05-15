@@ -12,7 +12,7 @@ from app.schemas.affiliate import (
 )
 from app.services import affiliate_service, referral_service
 
-router = APIRouter(prefix="/affiliate/api/v1/links", tags=["03. Referral Engine"])
+router = APIRouter(prefix="/api/v1/links", tags=["03. Referral Engine"])
 
 
 @router.post("/generate", response_model=GenerateLinkResponse)

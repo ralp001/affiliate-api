@@ -17,7 +17,7 @@ from app.schemas.products import (
 )
 from app.infrastructure.kafka.log_service import KafkaLogService
 
-router = APIRouter(prefix="/affiliate/api/v1/admin", tags=["05. System Administration"])
+router = APIRouter(prefix="/api/v1/admin", tags=["05. System Administration"])
 log_service = KafkaLogService()
 
 

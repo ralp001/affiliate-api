@@ -7,7 +7,7 @@ from app.core.security import require_affiliate
 from app.services import product_service
 from app.schemas.products import ProductResponse
 
-router = APIRouter(prefix="/affiliate/api/v1/products", tags=["06. Product Catalog"])
+router = APIRouter(prefix="/api/v1/products", tags=["06. Product Catalog"])
 
 
 @router.get("/", response_model=list[ProductResponse])

@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.security import require_affiliate
 from app.models.marketing_resource import MarketingResource
 
-router = APIRouter(prefix="/affiliate/api/v1/resources", tags=["07. Marketing Resources"])
+router = APIRouter(prefix="/api/v1/resources", tags=["07. Marketing Resources"])
 
 
 @router.get("/")
