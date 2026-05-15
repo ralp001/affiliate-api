@@ -11,6 +11,7 @@ from app.schemas.affiliate import (
     RecordConversionRequest,
 )
 from app.services import affiliate_service, referral_service
+from app.schemas.common import ConversionRecordedResponse, ReferralLinkItem
 
 router = APIRouter(prefix="/api/v1/links", tags=["03. Referral Engine"])
 
@@ -56,7 +57,7 @@ async def validate_referral(
     )
 
 
-@router.post("/record-conversion")
+@router.post("/record-conversion", response_model=ConversionRecordedResponse)
 async def record_conversion(
     request: RecordConversionRequest,
     db: AsyncSession = Depends(get_db),
@@ -83,7 +84,7 @@ async def record_conversion(
     }
 
 
-@router.get("/my-links")
+@router.get("/my-links", response_model=list[ReferralLinkItem])
 async def my_links(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_affiliate),

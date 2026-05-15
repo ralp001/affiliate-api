@@ -7,11 +7,12 @@ from app.core.db import get_db
 from app.core.config import settings
 from app.core.security import require_affiliate
 from app.models.marketing_resource import MarketingResource
+from app.schemas.products import ResourceResponse
 
 router = APIRouter(prefix="/api/v1/resources", tags=["07. Marketing Resources"])
 
 
-@router.get("/")
+@router.get("/", response_model=list[ResourceResponse])
 async def list_resources(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(require_affiliate),
@@ -31,7 +32,7 @@ async def list_resources(
     ]
 
 
-@router.get("/by-product/{product_id}")
+@router.get("/by-product/{product_id}", response_model=list[ResourceResponse])
 async def list_resources_for_product(
     product_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),

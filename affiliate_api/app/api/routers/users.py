@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from app.core.db import get_db
 from app.core.security import create_access_token, require_support_admin
 from app.schemas.identity import RegisterUserRequest, LoginRequest, TokenResponse
+from app.schemas.common import RegisterResponse, UserItem
 from app.models.user import User
 from app.models.affiliate_profile import AffiliateProfile
 from app.decorators.log_user_action import log_user_action
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/api/v1/users", tags=["01. User Provisioning"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=201, response_model=RegisterResponse)
 @log_user_action(action=UserAction.SIGNUP)
 async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSession = Depends(get_db)):
     lang = getattr(req.state, "language", DEFAULT_LANGUAGE)
@@ -84,6 +85,7 @@ async def login(req: Request, body: LoginRequest, db: AsyncSession = Depends(get
     issuer = "internal-auth-api" if user.role == "SupportAdmin" else "external-auth-api"
     token = create_access_token({
         "sub": str(user.id),
+        "username": user.username,
         "email": user.email,
         "responsibility_category": user.role.lower(),
         "home_country": user.home_country,
@@ -96,7 +98,7 @@ async def login(req: Request, body: LoginRequest, db: AsyncSession = Depends(get
     )
 
 
-@router.get("/", tags=["01. User Provisioning"])
+@router.get("/", response_model=list[UserItem], tags=["01. User Provisioning"])
 async def list_users(
     db: AsyncSession = Depends(get_db),
     _: dict = Depends(require_support_admin),

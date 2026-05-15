@@ -15,6 +15,10 @@ from app.schemas.products import (
     CreateProductRequest, SetCommissionRequest, ProductResponse,
     CreateResourceRequest, ResourceResponse, FraudConversionResponse,
 )
+from app.schemas.common import (
+    AffiliateItem, AuditLogItem, ResourceCreatedResponse,
+    FraudApprovedResponse, MessageResponse,
+)
 from app.infrastructure.kafka.log_service import KafkaLogService
 
 router = APIRouter(prefix="/api/v1/admin", tags=["05. System Administration"])
@@ -83,7 +87,7 @@ async def toggle_product_availability(
 
 # ─── Marketing Resources ──────────────────────────────────────────────────────
 
-@router.post("/resources", status_code=201)
+@router.post("/resources", status_code=201, response_model=ResourceCreatedResponse)
 async def create_resource(
     request: CreateResourceRequest,
     db: AsyncSession = Depends(get_db),
@@ -121,7 +125,7 @@ async def list_fraud_reviews(
     return result.scalars().all()
 
 
-@router.put("/fraud-review/{conversion_id}/approve")
+@router.put("/fraud-review/{conversion_id}/approve", response_model=FraudApprovedResponse)
 async def approve_conversion(
     conversion_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
@@ -150,7 +154,7 @@ async def approve_conversion(
     return {"message": "Conversion approved and commission credited", "commission_earned": float(conversion.commission_earned)}
 
 
-@router.put("/fraud-review/{conversion_id}/reject")
+@router.put("/fraud-review/{conversion_id}/reject", response_model=MessageResponse)
 async def reject_conversion(
     conversion_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
@@ -170,7 +174,7 @@ async def reject_conversion(
 
 # ─── Affiliates List ──────────────────────────────────────────────────────────
 
-@router.get("/affiliates")
+@router.get("/affiliates", response_model=list[AffiliateItem])
 async def list_affiliates(
     db: AsyncSession = Depends(get_db),
     _: dict = Depends(require_support_admin),
@@ -199,7 +203,7 @@ async def list_affiliates(
 
 # ─── Audit Logs ───────────────────────────────────────────────────────────────
 
-@router.get("/audit-logs/{entity_name}")
+@router.get("/audit-logs/{entity_name}", response_model=list[AuditLogItem])
 async def get_audit_logs(
     entity_name: str,
     db: AsyncSession = Depends(get_db),

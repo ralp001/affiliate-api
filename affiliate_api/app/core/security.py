@@ -46,6 +46,7 @@ async def get_current_user(
         _profile = (await db.execute(select(_AP).limit(1))).scalar_one_or_none()
         return {
             "id": str(_profile.user_id) if _profile else "00000000-0000-0000-0000-000000000000",
+            "username": "demo",
             "email": "demo@emutare.io",
             "responsibility_category": "SupportAdmin",
             "role": "SupportAdmin",
@@ -101,6 +102,7 @@ async def get_current_user(
     if issuer == "internal-auth-api":
         return {
             "id": user_id,
+            "username": payload.get("username", ""),
             "email": payload.get("email", ""),
             "responsibility_category": payload.get("responsibility_category", ""),
             "role": "SupportAdmin",
@@ -121,6 +123,7 @@ async def get_current_user(
 
     return {
         "id": user_id,
+        "username": payload.get("username", ""),
         "email": payload.get("email", ""),
         "responsibility_category": payload.get("responsibility_category", "affiliate"),
         "role": "Affiliate",
