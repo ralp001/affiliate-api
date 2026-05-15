@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     KAFKA_PERMISSION_UPDATES_TOPIC: str = "permission-updates"
     KAFKA_SECURITY_LOGS_TOPIC: str = "security-logs"
     KAFKA_USER_ACTION_LOGS_TOPIC: str = "user-action-logs"
+    # Auth bypass (set DISABLE_AUTH=true in .env to skip JWT checks — demo/testing only)
+    DISABLE_AUTH: bool = False
     # Logging system
     LOG_OUTBOX_QUEUE_SIZE: int = 1000
     LOG_MAX_RETRY_COUNT: int = 5

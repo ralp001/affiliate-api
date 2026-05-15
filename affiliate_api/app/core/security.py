@@ -35,8 +35,20 @@ async def get_current_user(
     """
     Multi-tenant JWT authentication.
     Accepts tokens from both internal-auth-api (staff) and external-auth-api (affiliates).
+    When DISABLE_AUTH=true in .env every request is treated as a SupportAdmin (demo only).
     """
     lang = getattr(request.state, "language", DEFAULT_LANGUAGE)
+
+    # ── Auth bypass (demo / smoke-test mode) ──────────────────────────────────
+    if settings.DISABLE_AUTH:
+        return {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "email": "demo@emutare.io",
+            "responsibility_category": "SupportAdmin",
+            "role": "SupportAdmin",
+            "issuer": "demo",
+            "affiliate_profile_id": None,
+        }
 
     if credentials is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=t("auth.not_authenticated", lang))
