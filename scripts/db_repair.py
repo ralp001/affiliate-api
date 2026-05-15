@@ -5,35 +5,44 @@ Safely adds any columns / tables that exist in the SQLAlchemy models but were
 not present in the initial Alembic migration (common when columns are added to
 models after the first migration was already applied to the live DB).
 
-Usage (on VM, from repo root):
+Usage (on VM, from repo root, with venv active):
     cd /home/abraham/apps/affiliate-api
     python3 scripts/db_repair.py
 """
 import asyncio
-import sys
 import os
-
-# Allow running from repo root without installing the package
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+import re
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine
 
-# Import all models so Base.metadata knows about every table
-from affiliate_api.app.core.config import settings  # noqa: F401
-from affiliate_api.app.core.db import Base
+# ── Read DATABASE_URL straight from .env (no app imports needed) ──────────────
+def _load_db_url() -> str:
+    env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+    env_path = os.path.normpath(env_path)
+    try:
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("#") or "=" not in line:
+                    continue
+                key, _, val = line.partition("=")
+                if key.strip() == "DATABASE_URL":
+                    return val.strip().strip('"').strip("'")
+    except FileNotFoundError:
+        pass
+    # Fallback to environment variable
+    url = os.environ.get("DATABASE_URL", "")
+    if not url:
+        raise RuntimeError("DATABASE_URL not found in .env or environment")
+    return url
 
-import affiliate_api.app.models.user               # noqa: F401
-import affiliate_api.app.models.affiliate_profile  # noqa: F401
-import affiliate_api.app.models.product            # noqa: F401
-import affiliate_api.app.models.referral_link      # noqa: F401
-import affiliate_api.app.models.click_event        # noqa: F401
-import affiliate_api.app.models.conversion         # noqa: F401
-import affiliate_api.app.models.marketing_resource # noqa: F401
-import affiliate_api.app.models.audit_log          # noqa: F401
-import affiliate_api.app.models.log_model          # noqa: F401
+_db_url = _load_db_url()
+# asyncpg requires postgresql+asyncpg:// scheme
+if _db_url.startswith("postgresql://") and "+asyncpg" not in _db_url:
+    _db_url = _db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-engine = create_async_engine(settings.DATABASE_URL, echo=False)
+engine = create_async_engine(_db_url, echo=False)
 
 # Each entry: (table, column, sql_type, default_clause)
 MISSING_COLUMNS = [
@@ -62,12 +71,6 @@ MISSING_COLUMNS = [
 
 async def repair():
     async with engine.begin() as conn:
-        # 1. Create any completely missing tables
-        print("▶ Creating missing tables (if any) …")
-        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
-        print("  ✓ Tables OK")
-
-        # 2. Add missing columns
         print("▶ Adding missing columns …")
         for table, column, col_type, default in MISSING_COLUMNS:
             # Check whether column already exists
