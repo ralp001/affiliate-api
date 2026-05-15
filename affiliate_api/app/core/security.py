@@ -41,13 +41,16 @@ async def get_current_user(
 
     # ── Auth bypass (demo / smoke-test mode) ──────────────────────────────────
     if settings.DISABLE_AUTH:
+        # Try to pick up a real affiliate profile so affiliate-only endpoints work too
+        from app.models.affiliate_profile import AffiliateProfile as _AP
+        _profile = (await db.execute(select(_AP).limit(1))).scalar_one_or_none()
         return {
-            "id": "00000000-0000-0000-0000-000000000000",
+            "id": str(_profile.user_id) if _profile else "00000000-0000-0000-0000-000000000000",
             "email": "demo@emutare.io",
             "responsibility_category": "SupportAdmin",
             "role": "SupportAdmin",
             "issuer": "demo",
-            "affiliate_profile_id": None,
+            "affiliate_profile_id": str(_profile.id) if _profile else None,
         }
 
     if credentials is None:
@@ -128,6 +131,9 @@ async def get_current_user(
 def require_role(*roles: str):
     """Returns a FastAPI dependency that enforces one of the given roles."""
     async def _checker(request: Request, user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+        # When DISABLE_AUTH=true all role checks are bypassed for demo/testing
+        if settings.DISABLE_AUTH:
+            return user
         if user.get("role") not in roles:
             lang = getattr(request.state, "language", DEFAULT_LANGUAGE)
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=t("auth.insufficient_permissions", lang))
