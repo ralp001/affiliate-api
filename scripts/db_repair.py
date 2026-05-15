@@ -31,11 +31,11 @@ def _load_db_url() -> str:
                     return val.strip().strip('"').strip("'")
     except FileNotFoundError:
         pass
-    # Fallback to environment variable
-    url = os.environ.get("DATABASE_URL", "")
-    if not url:
-        raise RuntimeError("DATABASE_URL not found in .env or environment")
-    return url
+    # Fallback to environment variable, then to the app's hardcoded default
+    return os.environ.get(
+        "DATABASE_URL",
+        "postgresql+asyncpg://postgres:cyberrole_2026@localhost:5432/affiliate_db",
+    )
 
 _db_url = _load_db_url()
 # asyncpg requires postgresql+asyncpg:// scheme
