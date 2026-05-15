@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     # Resolve .env relative to this file so it is found regardless of working directory
     model_config = SettingsConfigDict(
-        env_file=Path(__file__).parent.parent.parent / ".env",
+        env_file=Path(__file__).parent.parent.parent.parent / ".env",
         extra="ignore",
     )
 

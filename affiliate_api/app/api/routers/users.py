@@ -42,6 +42,7 @@ async def register_user(req: Request, body: RegisterUserRequest, db: AsyncSessio
     if body.role == "Affiliate":
         if not body.terms_accepted:
             raise HTTPException(status_code=400, detail=t("registration.terms_required", lang))
+        await db.flush()  # flush user so FK constraint is satisfied when profile is inserted
         tracking_id = f"AFF-{str(uuid.uuid4())[:8].upper()}"
         profile = AffiliateProfile(
             id=uuid.uuid4(),
