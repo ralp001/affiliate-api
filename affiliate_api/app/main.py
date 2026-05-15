@@ -123,6 +123,7 @@ def _custom_openapi():
         title="Emutare Affiliate API",
         version="1.0",
         routes=app.routes,
+        servers=[{"url": "/affiliate"}],
     )
     lang_param = {
         "name": "lang",
